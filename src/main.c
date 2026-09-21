@@ -533,7 +533,7 @@ void draw(void) {
         DrawTextCentered("GLEYCE KELLY", 250, 20, BLACK);
         DrawTextCentered("MILENA CRISTINA", 280, 20, BLACK);
         DrawTextCentered("SOFIA DE BARROS", 310, 20, BLACK);
-        DrawTextCentered("YONA MAIA", 340, 20, BLACK);
+        DrawTextCentered("YONÁ MAIA", 340, 20, BLACK);
 
         DrawTextCentered("Pressione M para voltar", screenH - 60, 20, GRAY);
     }
