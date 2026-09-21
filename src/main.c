@@ -125,7 +125,7 @@ void DrawTextCentered(const char *text, int posY, int fontSize, Color color) {
 }
 
 int main(void) {
-    InitWindow(960, 640, "Do Frasco a Descoberta - IFSP SJBV");
+    InitWindow(960, 640, "Do Frasco à Descoberta - IFSP SJBV");
     SetTargetFPS(60);
 
     CarregarRecursos();
@@ -407,13 +407,13 @@ void draw(void) {
         DrawTextCentered("JOGAR", btnStartY + 12, 20, WHITE);
 
         DrawRectangle(btnX, btnStartY + 60, btnLargura, btnAltura, DARKGREEN); 
-        DrawTextCentered("INVENTARIO", btnStartY + 72, 20, WHITE);
+        DrawTextCentered("INVENTÁRIO", btnStartY + 72, 20, WHITE);
 
         DrawRectangle(btnX, btnStartY + 120, btnLargura, btnAltura, DARKGREEN); 
-        DrawTextCentered("CATALOGO", btnStartY + 132, 20, WHITE);
+        DrawTextCentered("CATÁLOGO", btnStartY + 132, 20, WHITE);
 
         DrawRectangle(btnX, btnStartY + 180, btnLargura, btnAltura, DARKBLUE);  
-        DrawTextCentered("CREDITOS", btnStartY + 192, 20, WHITE);
+        DrawTextCentered("CRÉDITOS", btnStartY + 192, 20, WHITE);
     } 
     else if (estadoAtual == TELA_JOGANDO) {
         Rectangle origemFundo = { 0, 0, (float)assets.fundoJogo.width, (float)assets.fundoJogo.height };
@@ -448,7 +448,6 @@ void draw(void) {
             DrawCircleV(player.posicao, JOGADOR_RAIO_COLISAO, MAROON);
         }
 
-        // Exibição dos Pontos e Temporizador
         int minutos = (int)tempoRestante / 60;
         int segundos = (int)tempoRestante % 60;
         
@@ -489,9 +488,9 @@ void draw(void) {
             DrawText(TextFormat("[2]  %s", perguntaAtual->alternativaB), boxX + 20, 355, 18, BLACK);
 
             if (respostaCorreta) {
-                DrawTextCentered("Isso mesmo! Voce acertou! (+25 pontos)", 410, 22, GREEN);
+                DrawTextCentered("Isso mesmo! Você acertou! (+25 pontos)", 410, 22, GREEN);
             } else {
-                DrawTextCentered("Quase! Mas olha so o que voce descobriu:", 410, 22, ORANGE);
+                DrawTextCentered("Quase! Mas olha só o que você descobriu:", 410, 22, ORANGE);
             }
             DrawTextCentered(perguntaAtual->curiosidade, 450, 18, WHITE);
             DrawTextCentered("Continuando... (ou aperte ESPACO / M)", screenH - 50, 16, LIGHTGRAY);
@@ -519,11 +518,11 @@ void draw(void) {
         DrawTextCentered("Pressione R para tentar novamente", screenH / 2 + 50, 20, LIGHTGRAY);
         DrawTextCentered("Pressione M para voltar ao menu", screenH / 2 + 90, 20, LIGHTGRAY);
     } else if (estadoAtual == TELA_INVENTARIO) {
-        DrawTextCentered("INVENTARIO", 140, 30, BLACK);
+        DrawTextCentered("INVENTÁRIO", 140, 30, BLACK);
         DrawTextCentered("Tela em construcao", screenH / 2, 20, GRAY);
         DrawTextCentered("Pressione M para voltar", screenH - 60, 20, GRAY);
     } else if (estadoAtual == TELA_CATALOGO) {
-        DrawTextCentered("CATALOGO", 140, 30, BLACK);
+        DrawTextCentered("CATÁLOGO", 140, 30, BLACK);
         DrawTextCentered("Tela em construcao", screenH / 2, 20, GRAY);
         DrawTextCentered("Pressione M para voltar", screenH - 60, 20, GRAY);
     } else if (estadoAtual == TELA_CREDITOS) {
