@@ -14,6 +14,8 @@ typedef enum {
     TELA_INVENTARIO,
     TELA_CATALOGO,
     TELA_CREDITOS,
+    TELA_VITORIA,
+    TELA_GAME_OVER,
     TELA_QUIZ
 } EstadoJogo;
 

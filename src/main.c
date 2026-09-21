@@ -10,6 +10,8 @@
 #define FRASCO_ALTURA_ALVO 90.0f
 #define FRASCO_RAIO_COLISAO 40.0f
 #define JOGADOR_RAIO_COLISAO 20.0f
+#define PONTOS_PARA_VENCER 300
+#define TEMPO_INICIAL 120.0f
 
 typedef struct {
     Texture2D parado[NUM_FRAMES_PARADO];
@@ -97,6 +99,7 @@ bool quizRespondido = false;
 bool respostaCorreta = false;
 int escolhaFeita = 0;          
 float timerFeedback = 0.0f;
+float tempoRestante = TEMPO_INICIAL;
 
 EstadoJogo estadoAtual = TELA_MENU;
 Jogador player;
@@ -109,6 +112,7 @@ bool olhandoEsquerda = false;
 void CarregarRecursos(void);
 void DescarregarRecursos(void);
 void InicializarFrascos(void);
+void ReiniciarJogo(void);
 void AtualizarAnimacaoJogador(Jogador *p, float delta);
 void DesenharFrasco(Texture2D tex, Vector2 centro);
 void update(float delta);
@@ -182,6 +186,13 @@ void InicializarFrascos(void) {
     }
 }
 
+void ReiniciarJogo(void) {
+    player.pontosTotais = 0;
+    tempoRestante = TEMPO_INICIAL;
+    InicializarJogador(&player);
+    InicializarFrascos();
+}
+
 void AtualizarAnimacaoJogador(Jogador *p, float delta) {
     if (p->estadoAnimacao == 2) return; 
 
@@ -227,6 +238,7 @@ void update(float delta) {
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 Vector2 mPos = GetMousePosition();
                 if (CheckCollisionPointRec(mPos, btnJogar)) { 
+                    ReiniciarJogo();
                     estadoAtual = TELA_JOGANDO; 
                 } else if (CheckCollisionPointRec(mPos, btnInventario)) { 
                     estadoAtual = TELA_INVENTARIO; 
@@ -239,6 +251,18 @@ void update(float delta) {
             break;
 
         case TELA_JOGANDO:
+            tempoRestante -= delta;
+            if (tempoRestante <= 0.0f) {
+                tempoRestante = 0.0f;
+                estadoAtual = TELA_GAME_OVER;
+                break;
+            }
+
+            if (player.pontosTotais >= PONTOS_PARA_VENCER) {
+                estadoAtual = TELA_VITORIA;
+                break;
+            }
+
             if (player.estadoAnimacao == 2) {
                 player.timerAgachado += delta;
                 if (player.timerAgachado > 0.6f) { 
@@ -331,14 +355,28 @@ void update(float delta) {
             } else {
                 timerFeedback += delta;
                 if (timerFeedback > 3.0f || IsKeyPressed(KEY_SPACE)) {
-                    estadoAtual = TELA_JOGANDO;
-                    bool algumAtivo = false;
-                    for (int i = 0; i < 3; i++) { if (frascos[i].ativo) algumAtivo = true; }
-                    if (!algumAtivo) InicializarFrascos();
+                    if (player.pontosTotais >= PONTOS_PARA_VENCER) {
+                        estadoAtual = TELA_VITORIA;
+                    } else {
+                        estadoAtual = TELA_JOGANDO;
+                        bool algumAtivo = false;
+                        for (int i = 0; i < 3; i++) { if (frascos[i].ativo) algumAtivo = true; }
+                        if (!algumAtivo) InicializarFrascos();
+                    }
                 }
             }
             break;
         }
+
+        case TELA_VITORIA:
+        case TELA_GAME_OVER:
+            if (IsKeyPressed(KEY_R)) {
+                ReiniciarJogo();
+                estadoAtual = TELA_JOGANDO;
+            } else if (IsKeyPressed(KEY_M)) {
+                estadoAtual = TELA_MENU;
+            }
+            break;
 
         default:
             if (IsKeyPressed(KEY_M)) { estadoAtual = TELA_MENU; }
@@ -410,9 +448,14 @@ void draw(void) {
             DrawCircleV(player.posicao, JOGADOR_RAIO_COLISAO, MAROON);
         }
 
-        DrawText(TextFormat("Pontos: %d", player.pontosTotais), 20, 20, 20, WHITE);
-        DrawText(TextFormat("Clique F para pegar frasco"), 20, 50, 20, GRAY);
-        DrawText(TextFormat("Clique M para voltar ao menu"), 20, 80, 20, GRAY);
+        // Exibição dos Pontos e Temporizador
+        int minutos = (int)tempoRestante / 60;
+        int segundos = (int)tempoRestante % 60;
+        
+        DrawText(TextFormat("Pontos: %d / %d", player.pontosTotais, PONTOS_PARA_VENCER), 20, 20, 20, WHITE);
+        DrawText(TextFormat("Tempo: %02d:%02d", minutos, segundos), 20, 50, 20, (tempoRestante < 20.0f) ? RED : YELLOW);
+        DrawText("Clique F para pegar frasco", 20, 80, 18, GRAY);
+        DrawText("Clique M para voltar ao menu", 20, 105, 18, GRAY);
     }
     else if (estadoAtual == TELA_QUIZ) {
         Rectangle origemFundo = { 0, 0, (float)assets.fundoJogo.width, (float)assets.fundoJogo.height };
@@ -453,6 +496,28 @@ void draw(void) {
             DrawTextCentered(perguntaAtual->curiosidade, 450, 18, WHITE);
             DrawTextCentered("Continuando... (ou aperte ESPACO / M)", screenH - 50, 16, LIGHTGRAY);
         }
+    } else if (estadoAtual == TELA_VITORIA) {
+        Rectangle origemFundo = { 0, 0, (float)assets.fundoJogo.width, (float)assets.fundoJogo.height };
+        Rectangle destinoFundo = { 0, 0, (float)screenW, (float)screenH };
+        DrawTexturePro(assets.fundoJogo, origemFundo, destinoFundo, (Vector2){0, 0}, 0.0f, WHITE);
+
+        DrawRectangle(0, 0, screenW, screenH, (Color){ 10, 30, 10, 220 });
+
+        DrawTextCentered("PARABÉNS! VOCÊ VENCEU!", screenH / 3, 40, GOLD);
+        DrawTextCentered(TextFormat("Você alcançou os %d pontos necessários!", PONTOS_PARA_VENCER), screenH / 2 - 20, 22, WHITE);
+        DrawTextCentered("Pressione R para jogar novamente", screenH / 2 + 50, 20, LIGHTGRAY);
+        DrawTextCentered("Pressione M para voltar ao menu", screenH / 2 + 90, 20, LIGHTGRAY);
+    } else if (estadoAtual == TELA_GAME_OVER) {
+        Rectangle origemFundo = { 0, 0, (float)assets.fundoJogo.width, (float)assets.fundoJogo.height };
+        Rectangle destinoFundo = { 0, 0, (float)screenW, (float)screenH };
+        DrawTexturePro(assets.fundoJogo, origemFundo, destinoFundo, (Vector2){0, 0}, 0.0f, WHITE);
+
+        DrawRectangle(0, 0, screenW, screenH, (Color){ 40, 10, 10, 230 });
+
+        DrawTextCentered("TEMPO ESGOTADO!", screenH / 3, 40, RED);
+        DrawTextCentered(TextFormat("Você fez %d de %d pontos.", player.pontosTotais, PONTOS_PARA_VENCER), screenH / 2 - 20, 22, WHITE);
+        DrawTextCentered("Pressione R para tentar novamente", screenH / 2 + 50, 20, LIGHTGRAY);
+        DrawTextCentered("Pressione M para voltar ao menu", screenH / 2 + 90, 20, LIGHTGRAY);
     } else if (estadoAtual == TELA_INVENTARIO) {
         DrawTextCentered("INVENTARIO", 140, 30, BLACK);
         DrawTextCentered("Tela em construcao", screenH / 2, 20, GRAY);
@@ -469,7 +534,7 @@ void draw(void) {
         DrawTextCentered("GLEYCE KELLY", 250, 20, BLACK);
         DrawTextCentered("MILENA CRISTINA", 280, 20, BLACK);
         DrawTextCentered("SOFIA DE BARROS", 310, 20, BLACK);
-        DrawTextCentered("YONÁ MAIA", 340, 20, BLACK);
+        DrawTextCentered("YONA MAIA", 340, 20, BLACK);
 
         DrawTextCentered("Pressione M para voltar", screenH - 60, 20, GRAY);
     }
