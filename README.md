@@ -5,7 +5,7 @@
 
 **Do Frasco à Descoberta** é um jogo educativo e interativo desenvolvido em **C utilizando a biblioteca Raylib**, voltado principalmente para o público infantil.
 
-No jogo, o jogador controla uma cientista que precisa explorar o mapa, encontrar e coletar frascos espalhados pelo cenário e responder perguntas relacionadas à ciência. O objetivo é acumular **300 pontos** para concluir o desafio.
+No jogo, o jogador controla uma cientista que precisa explorar o mapa, encontrar e coletar frascos espalhados pelo cenário e responder perguntas relacionadas à ciência. O objetivo é acumular **300 pontos** em **2 minutos** para concluir o desafio.
 
 O jogo foi desenvolvido como uma forma de **homenagear a Semana da Mulher na Ciência**, realizada durante a **Semana da Tecnologia do IFSP - Campus São João da Boa Vista (IFSP SJBV)**.
 
